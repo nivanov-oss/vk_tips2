@@ -4,8 +4,12 @@ import ReactDOM from 'react-dom/client';
 import bridge from '@vkontakte/vk-bridge';
 import App from './App';
 
-// Сообщаем ВК, что приложение инициализировано
-bridge.send('VKWebAppInit');
+// Инициализируем мост. Если мы не в ВК, он просто проигнорирует вызов.
+try {
+  bridge.send('VKWebAppInit').catch(e => console.log('Bridge init failed, likely not in VK', e));
+} catch (e) {
+  console.error('VK Bridge error', e);
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

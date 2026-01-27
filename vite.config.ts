@@ -4,15 +4,16 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Базовая ссылка './' гарантирует, что скрипты найдутся даже в подпапке GitHub Pages
   base: './',
+  // Это критически важно: превращаем обращения к process.env в безопасные объекты для браузера
+  define: {
+    'process.env': {
+      API_KEY: JSON.stringify(process.env.API_KEY)
+    }
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    // Оптимизация для работы внутри iframe ВК
     target: 'esnext'
-  },
-  server: {
-    port: 3000
   }
 });
