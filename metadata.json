@@ -1,0 +1,8 @@
+
+{
+  "name": "Cashless Tipping VK Widget",
+  "description": "Сервис безналичных чаевых для сообществ ВКонтакте",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

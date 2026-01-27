@@ -1,0 +1,20 @@
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import bridge from '@vkontakte/vk-bridge';
+import App from './App';
+
+// Сообщаем ВК, что приложение инициализировано
+bridge.send('VKWebAppInit');
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
