@@ -1,10 +1,9 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Если ваш репозиторий называется vk_tips2, Vite должен это учитывать
+  // Относительный базовый путь крайне важен для GitHub Pages
   base: './', 
   define: {
     'process.env': {
@@ -14,6 +13,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    emptyOutDir: true, // Очищать папку перед сборкой
     rollupOptions: {
       input: {
         main: './index.html',
@@ -21,7 +21,6 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    open: true
+    port: 3000
   }
 });
