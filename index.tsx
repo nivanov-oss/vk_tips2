@@ -4,21 +4,24 @@ import ReactDOM from 'react-dom/client';
 import bridge from '@vkontakte/vk-bridge';
 import App from './App';
 
-// Инициализируем мост. Если мы не в ВК, он просто проигнорирует вызов.
-try {
-  bridge.send('VKWebAppInit').catch(e => console.log('Bridge init failed, likely not in VK', e));
-} catch (e) {
-  console.error('VK Bridge error', e);
-}
+// Безопасная инициализация VK Bridge
+const initVK = async () => {
+  try {
+    await bridge.send('VKWebAppInit');
+    console.log('VK Bridge initialized');
+  } catch (e) {
+    console.log('Running outside of VK or Bridge init failed');
+  }
+};
+
+initVK();
 
 const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 }
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
