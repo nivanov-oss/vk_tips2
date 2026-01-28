@@ -1,19 +1,24 @@
 
-export interface WidgetConfig {
-  paymentLink: string;
-  title: string;
-  goalAmount: number;
-  collectedAmount: number;
-  supportersCount: number;
-  description: string;
-}
-
-export enum AppRole {
-  ADMIN = 'ADMIN',
-  VISITOR = 'VISITOR'
+export enum ViewMode {
+  VISITOR = 'visitor',
+  ADMIN = 'admin'
 }
 
 export enum PaymentMethod {
-  CARD = 'CARD',
-  WALLET = 'WALLET'
+  CARD = 'card',
+  WALLET = 'wallet'
+}
+
+export interface WidgetConfig {
+  paymentLink: string;
+  goalAmount: number;
+  currentAmount: number;
+  supportersCount: number;
+  title: string;
+}
+
+export interface TipRequest {
+  amount: number;
+  comment: string;
+  method: PaymentMethod;
 }

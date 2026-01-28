@@ -1,64 +1,54 @@
 
 import React, { useState } from 'react';
-import { AppRole, WidgetConfig } from './types';
-import { INITIAL_CONFIG, COLORS } from './constants';
+import { ViewMode, WidgetConfig } from './types';
 import VisitorView from './components/VisitorView';
 import AdminView from './components/AdminView';
 
 const App: React.FC = () => {
-  const [role, setRole] = useState<AppRole>(AppRole.VISITOR);
-  const [config, setConfig] = useState<WidgetConfig>(INITIAL_CONFIG);
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.VISITOR);
+  const [config, setConfig] = useState<WidgetConfig>({
+    paymentLink: 'https://tips.tips/000462613',
+    goalAmount: 5000,
+    currentAmount: 1450,
+    supportersCount: 24,
+    title: 'Безналичные чаевые'
+  });
 
-  const handleUpdateConfig = (newConfig: WidgetConfig) => {
-    setConfig(newConfig);
+  const handleSaveConfig = (newLink: string) => {
+    setConfig(prev => ({ ...prev, paymentLink: newLink }));
   };
 
+  const toggleAdmin = () => setViewMode(ViewMode.ADMIN);
+  const toggleVisitor = () => setViewMode(ViewMode.VISITOR);
+
   return (
-    <div className="min-h-screen p-4 md:p-10">
-      {/* Role Switcher (For demo purposes) */}
-      <div className="fixed bottom-6 right-6 flex bg-white rounded-full shadow-lg border border-[#e7e8ec] p-1.5 z-50">
-        <button
-          onClick={() => setRole(AppRole.VISITOR)}
-          className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-            role === AppRole.VISITOR 
-              ? 'bg-[#5181b8] text-white' 
-              : 'text-[#818c99] hover:bg-[#f2f3f5]'
-          }`}
-        >
-          Как посетитель
-        </button>
-        <button
-          onClick={() => setRole(AppRole.ADMIN)}
-          className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-            role === AppRole.ADMIN 
-              ? 'bg-[#5181b8] text-white' 
-              : 'text-[#818c99] hover:bg-[#f2f3f5]'
-          }`}
-        >
-          Как админ
-        </button>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="max-w-4xl mx-auto mt-8 mb-20 animate-in fade-in duration-500">
-        <div className="mb-4 flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-[#818c99] tracking-widest">
-                {role === AppRole.ADMIN ? 'Панель администратора' : 'Виджет сообщества'}
-            </span>
-            {role === AppRole.VISITOR && (
-                <button className="text-[#447bba] text-xs font-medium hover:underline">Настройка формы</button>
-            )}
-        </div>
-
-        {role === AppRole.ADMIN ? (
-          <AdminView config={config} onSave={handleUpdateConfig} />
+    <div className="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 bg-[#f0f2f5]">
+      <main className="w-full max-w-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200 ring-1 ring-black/5">
+        {viewMode === ViewMode.VISITOR ? (
+          <VisitorView 
+            config={config} 
+            onOpenSettings={toggleAdmin}
+          />
         ) : (
-          <VisitorView config={config} />
+          <AdminView 
+            currentLink={config.paymentLink} 
+            onSave={handleSaveConfig} 
+            onBack={toggleVisitor}
+          />
         )}
-      </div>
+      </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 bg-[#f5f6f8] border-t border-[#e7e8ec] py-3 text-center text-[#818c99] text-xs">
-          Cashless Tipping Widget &copy; {new Date().getFullYear()} • Powered by VK API
+      <footer className="mt-8 text-gray-500 text-xs flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2">
+          <span className="opacity-70">Сервис безналичных чаевых</span>
+          <div className="flex items-center gap-1">
+            <span className="font-bold text-brand-black">Cashless</span>
+            <span className="font-bold text-brand-purple">Tips</span>
+          </div>
+        </div>
+        <p className="opacity-40 text-[10px]">
+          Виджет для интеграции в сообщества ВКонтакте
+        </p>
       </footer>
     </div>
   );

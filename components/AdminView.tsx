@@ -1,104 +1,101 @@
 
 import React, { useState } from 'react';
-import { WidgetConfig } from '../types';
-import { GoogleGenAI } from "@google/genai";
+import { Link as LinkIcon, Save, CheckCircle2 } from 'lucide-react';
 
 interface AdminViewProps {
-  config: WidgetConfig;
-  onSave: (newConfig: WidgetConfig) => void;
+  currentLink: string;
+  onSave: (link: string) => void;
+  onBack: () => void;
 }
 
-const AdminView: React.FC<AdminViewProps> = ({ config, onSave }) => {
-  const [link, setLink] = useState(config.paymentLink);
-  const [description, setDescription] = useState(config.description);
-  const [status, setStatus] = useState<'idle' | 'saving' | 'success'>('idle');
-  const [isAiLoading, setIsAiLoading] = useState(false);
+const AdminView: React.FC<AdminViewProps> = ({ currentLink, onSave, onBack }) => {
+  const [link, setLink] = useState(currentLink);
+  const [saved, setSaved] = useState(false);
 
-  const generateAiDescription = async () => {
-    if (!process.env.API_KEY) {
-      console.error("API Key is missing");
-      alert("Ошибка конфигурации: API ключ не найден.");
-      return;
-    }
-
-    setIsAiLoading(true);
-    try {
-      // Инициализируем AI прямо перед использованием
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Напиши короткий, дружелюбный и мотивирующий текст для виджета сбора чаевых в сообществе ВК. 
-        Тема: поддержка авторов контента. Максимум 150 символов. Текущий текст: ${description}`,
-      });
-      if (response.text) {
-        setDescription(response.text.trim());
-      }
-    } catch (error) {
-      console.error("AI Error:", error);
-      alert("Не удалось улучшить текст. Попробуйте позже.");
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const handleSave = () => {
-    if (!link.startsWith('http')) {
-       alert('Введите корректную ссылку');
-       return;
-    }
-    setStatus('saving');
-    setTimeout(() => {
-      onSave({ ...config, paymentLink: link, description: description });
-      setStatus('success');
-      setTimeout(() => setStatus('idle'), 2000);
-    }, 600);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(link);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-[#e7e8ec] overflow-hidden max-w-2xl mx-auto">
-      <div className="px-8 py-6 border-b border-[#f0f2f5]">
-        <h2 className="text-lg font-bold text-black">Настройки виджета</h2>
+    <div className="p-8 md:p-12 space-y-10">
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-brand-black tracking-tight">Кабинет</h2>
+          <p className="text-sm text-gray-500 font-medium">
+            Интеграция вашего сервиса чаевых
+          </p>
+        </div>
+        <div className="bg-brand-orange/10 p-3 rounded-2xl text-brand-orange">
+           <LinkIcon size={24} />
+        </div>
       </div>
 
-      <div className="p-8 space-y-6">
-        <div>
-          <label className="block text-[#2c2d2e] text-sm font-semibold mb-2">Ссылка Tips.tips</label>
-          <input
-            type="text"
-            placeholder="https://tips.tips/000462613"
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            className="w-full bg-[#f2f3f5] border border-[#dce1e6] rounded-xl px-4 py-3 focus:outline-none focus:bg-white focus:border-[#447bba] transition-all font-medium"
-          />
-        </div>
-
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="text-[#2c2d2e] text-sm font-semibold">Описание сбора</label>
-            <button 
-              onClick={generateAiDescription}
-              disabled={isAiLoading}
-              className="text-[#447bba] text-xs font-medium flex items-center hover:opacity-80 disabled:opacity-50"
-            >
-              <svg className={`w-3.5 h-3.5 mr-1 ${isAiLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              {isAiLoading ? 'Магия AI...' : 'Улучшить через AI'}
-            </button>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-4">
+          <label className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 block ml-1">
+            Ваша персональная ссылка
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <span className="text-brand-purple font-bold">@</span>
+            </div>
+            <input
+              type="url"
+              required
+              placeholder="https://tips.tips/000000000"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              className="w-full bg-brand-black/5 border-2 border-transparent rounded-2xl py-5 pl-12 pr-6 focus:outline-none focus:border-brand-purple transition-all text-brand-black font-semibold text-lg placeholder:text-gray-300"
+            />
           </div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-[#f2f3f5] border border-[#dce1e6] rounded-xl px-4 py-3 h-24 resize-none focus:outline-none focus:bg-white focus:border-[#447bba] transition-all text-sm"
-          />
+          <div className="flex items-center gap-2 px-1">
+            <div className="w-1 h-1 bg-brand-green rounded-full"></div>
+            <p className="text-[11px] text-gray-400 font-medium">
+              Пример: https://tips.tips/000462613
+            </p>
+          </div>
         </div>
 
-        <button
-          onClick={handleSave}
-          className={`w-full ${status === 'success' ? 'bg-[#4bb34b]' : 'bg-[#447bba]'} text-white font-semibold py-3.5 rounded-xl transition-all shadow-sm`}
-        >
-          {status === 'saving' ? 'Сохранение...' : status === 'success' ? 'Готово!' : 'Сохранить изменения'}
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-gray-100">
+          <button
+            type="submit"
+            className={`w-full sm:flex-1 flex items-center justify-center gap-3 py-5 px-8 rounded-2xl font-black transition-all shadow-lg active:scale-[0.98] ${
+              saved 
+              ? 'bg-brand-green text-brand-black' 
+              : 'bg-brand-black text-brand-green hover:shadow-brand-green/20'
+            }`}
+          >
+            {saved ? (
+              <><CheckCircle2 size={22} strokeWidth={3} /> СОХРАНЕНО</>
+            ) : (
+              <><Save size={22} strokeWidth={3} /> СОХРАНИТЬ</>
+            )}
+          </button>
+          
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-full sm:w-auto px-8 py-5 text-gray-400 font-bold text-sm hover:text-brand-black transition-colors"
+          >
+            ОТМЕНА
+          </button>
+        </div>
+      </form>
+
+      <div className="bg-brand-pink/5 rounded-3xl p-6 border border-brand-pink/10">
+        <div className="flex gap-4">
+          <div className="bg-brand-pink/20 p-3 rounded-2xl h-fit">
+            <div className="w-5 h-5 bg-brand-pink rounded-full blur-[4px] absolute opacity-40"></div>
+            <LinkIcon size={20} className="text-brand-pink relative z-10" />
+          </div>
+          <div className="text-xs text-gray-600 leading-relaxed font-medium">
+            <span className="font-bold text-brand-black block mb-1">Мгновенная оплата</span>
+            Введите ссылку, и виджет автоматически подгрузит вашу форму оплаты CashlessTips. Пользователи смогут донатить прямо из ВК.
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,5 @@
 {
-  "name": "Cashless Tipping VK Widget",
-  "description": "Сервис безналичных чаевых для сообществ ВКонтакте",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "name": "VK Tipping Widget",
+  "description": "A customizable cashless tipping widget for VK communities, featuring a visitor payment form and an admin configuration panel.",
+  "requestFramePermissions": []
 }
